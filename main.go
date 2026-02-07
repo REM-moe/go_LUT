@@ -49,12 +49,14 @@ func loadLUT(filename string) (*Lut3D, error) {
 
 	lut := &Lut3D{}
 
+	headerPassed := false
+
 	for scanner.Scan() {
 		line := scanner.Text()
 		words := strings.Fields(line)
 
 		// check word starts with LUT_3D_SIZE
-		if strings.Contains(line, "LUT_3D_SIZE") && len(words) >= 2 {
+		if strings.Contains(line, "LUT_3D_SIZE") && len(words) >= 2 && !headerPassed {
 
 			text, err := strconv.Atoi(words[1])
 
@@ -64,8 +66,9 @@ func loadLUT(filename string) (*Lut3D, error) {
 
 			lut.Size = text
 			lut.Data = make([]Color, 0, text*text*text)
+			headerPassed = true
 
-		} else if len(words) == 3 {
+		} else if (len(words) == 3 && headerPassed ){
 			r, err1 := strconv.ParseFloat(words[0], 64)
 			g, err2 := strconv.ParseFloat(words[1], 64)
 			b, err3 := strconv.ParseFloat(words[2], 64)
